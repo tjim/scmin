@@ -2,6 +2,7 @@
     "name": "scmin",
     "description": "Remove unnecessary semicolons",
     "homepage": "https://github.com/tjim/scmin",
+    "main": "scmin.js",
     "bin": {
         "scmin": "./bin/scmin",
         "scmax": "./bin/scmax"
