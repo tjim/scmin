@@ -1,31 +1,26 @@
 {
-    "name": "esprima",
-    "description": "ECMAScript parsing infrastructure for multipurpose analysis",
-    "homepage": "http://esprima.org",
-    "main": "esprima.js",
+    "name": "scmin",
+    "description": "Remove unnecessary semicolons",
+    "homepage": "https://github.com/tjim/scmin",
     "bin": {
-        "esparse": "./bin/esparse.js"
+        "scmin": "./bin/scmin",
+        "scmax": "./bin/scmax"
     },
-    "version": "1.0.0-dev",
+    "version": "1.0.0",
     "engines": {
         "node": ">=0.4.0"
     },
     "maintainers": [{
-        "name": "Ariya Hidayat",
-        "email": "ariya.hidayat@gmail.com",
-        "web": "http://ariya.ofilabs.com"
+        "name": "Trevor Jim",
+        "email": "tjim@mac.com",
+        "web": "http://trevorjim.com/"
     }],
     "repository": {
         "type": "git",
-        "url": "http://github.com/ariya/esprima.git"
+        "url": "https://github.com/tjim/scmin.git"
     },
     "licenses": [{
         "type": "BSD",
-        "url": "http://github.com/ariya/esprima/raw/master/LICENSE.BSD"
-    }],
-    "scripts": {
-        "test": "node test/run.js",
-        "benchmark": "node test/benchmarks.js",
-        "benchmark-quick": "node test/benchmarks.js quick"
-    }
+        "url": "https://raw.github.com/tjim/scmin/master/LICENSE.BSD"
+    }]
 }
