@@ -1,6 +1,6 @@
 {
     "name": "scmin",
-    "description": "Remove unnecessary semicolons",
+    "description": "Remove unnecessary semicolons.  Or add them.  Whatever.",
     "homepage": "https://github.com/tjim/scmin",
     "main": "scmin.js",
     "bin": {
