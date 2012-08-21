@@ -1,3 +1,7 @@
+/* scmin/scmax: minimize/maximize semicolons in Javascript.
+   Hacked by Trevor Jim from the Esprima JavaScript parser
+   (http://esprima.org, https://github.com/ariya/esprima). */
+
 /*
   Copyright (C) 2012 Ariya Hidayat <ariya.hidayat@gmail.com>
   Copyright (C) 2012 Mathias Bynens <mathias@qiwi.be>
@@ -47,7 +51,7 @@ parseStatement: true, parseSourceElement: true */
     } else if (typeof exports !== 'undefined') {
         factory(exports);
     } else {
-        factory((window.esprima = {}));
+        factory((window.scmin = {}));
     }
 }(function (exports) {
     'use strict';
@@ -196,7 +200,7 @@ parseStatement: true, parseSourceElement: true */
         return source.slice(from, to);
     }
 
-    if (typeof 'esprima'[0] === 'undefined') {
+    if (typeof 'scmin'[0] === 'undefined') {
         sliceSource = function sliceArraySource(from, to) {
             return source.slice(from, to).join('');
         };
@@ -1275,14 +1279,38 @@ parseStatement: true, parseSourceElement: true */
             op === '|=';
     }
 
+    var fs = require('fs');
+    var scmin = true;
+    var outindex, outbuf;
+    function output(i) {
+      if (i<=outindex) return;
+      fs.writeSync(1,outbuf,outindex,i-outindex);
+      outindex = i;
+    }
+    function output_semicolon() {
+      output(index);
+      fs.writeSync(1,new Buffer(";"),0,1);
+    }
+    function scmin_lex() {
+      var before = index;
+      lex();
+      var token = lookahead();
+      if (scmin && (peekLineTerminator() || token.type === Token.EOF || match('}'))) { output(before); outindex = index; }
+      return;
+    }
+
     function consumeSemicolon() {
         var token, line;
 
         // Catch the very common case first.
         if (source[index] === ';') {
-            lex();
+            scmin_lex();
             return;
         }
+
+        token = lookahead();
+        if (!scmin && (peekLineTerminator() || token.type === Token.EOF || match('}'))) output_semicolon();
+
 
         line = lineNumber;
         skipComment();
@@ -1291,7 +1319,7 @@ parseStatement: true, parseSourceElement: true */
         }
 
         if (match(';')) {
-            lex();
+            scmin_lex();
             return;
         }
 
@@ -2348,7 +2376,7 @@ parseStatement: true, parseSourceElement: true */
 
         // Optimize the most common form: 'continue;'.
         if (source[index] === ';') {
-            lex();
+            scmin_lex();
 
             if (!state.inIteration) {
                 throwError({}, Messages.IllegalContinue);
@@ -2360,6 +2388,7 @@ parseStatement: true, parseSourceElement: true */
             };
         }
 
+        if (!scmin && peekLineTerminator()) output_semicolon();
         if (peekLineTerminator()) {
             if (!state.inIteration) {
                 throwError({}, Messages.IllegalContinue);
@@ -2401,7 +2430,7 @@ parseStatement: true, parseSourceElement: true */
 
         // Optimize the most common form: 'break;'.
         if (source[index] === ';') {
-            lex();
+            scmin_lex();
 
             if (!(state.inIteration || state.inSwitch)) {
                 throwError({}, Messages.IllegalBreak);
@@ -2413,6 +2442,8 @@ parseStatement: true, parseSourceElement: true */
             };
         }
 
+        token = lookahead();
+        if (!scmin && (peekLineTerminator() || token.type === Token.EOF || match('}'))) output_semicolon();
         if (peekLineTerminator()) {
             if (!(state.inIteration || state.inSwitch)) {
                 throwError({}, Messages.IllegalBreak);
@@ -2468,6 +2499,8 @@ parseStatement: true, parseSourceElement: true */
             }
         }
 
+        token = lookahead();
+        if (!scmin && (peekLineTerminator() || token.type === Token.EOF || match('}'))) output_semicolon();
         if (peekLineTerminator()) {
             return {
                 type: Syntax.ReturnStatement,
@@ -3602,6 +3635,8 @@ parseStatement: true, parseSourceElement: true */
 
         source = code;
         index = 0;
+        outbuf = new Buffer(source);
+        outindex = 0;
         lineNumber = (source.length > 0) ? 1 : 0;
         lineStart = 0;
         length = source.length;
@@ -3620,6 +3655,7 @@ parseStatement: true, parseSourceElement: true */
             extra.range = (typeof options.range === 'boolean') && options.range;
             extra.loc = (typeof options.loc === 'boolean') && options.loc;
             extra.raw = (typeof options.raw === 'boolean') && options.raw;
+            if (typeof options.scmin === 'boolean') scmin = options.scmin;
             if (typeof options.tokens === 'boolean' && options.tokens) {
                 extra.tokens = [];
             }
@@ -3668,11 +3704,12 @@ parseStatement: true, parseSourceElement: true */
             extra = {};
         }
 
+        output(length);
         return program;
     }
 
     // Sync with package.json.
-    exports.version = '1.0.0-dev';
+    exports.version = '1.0.0';
 
     exports.parse = parse;
 
