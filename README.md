@@ -26,7 +26,7 @@ allows you to omit semicolons in certain situations.
 **scmin** removes semicolons that are unnecessary due to automatic
 semicolon insertion.
 
-**scmax** adds semicolons explicit semicolons so that automatic
+**scmax** adds explicit semicolons so that automatic
 semicolon insertion is never used.
 
 Both of them preserve whitespace; only semicolons are added or removed.
