@@ -2209,9 +2209,7 @@ parseStatement: true, parseSourceElement: true */
 
         expect(')');
 
-        if (match(';')) {
-            lex();
-        }
+        consumeSemicolon();
 
         return {
             type: Syntax.DoWhileStatement,
